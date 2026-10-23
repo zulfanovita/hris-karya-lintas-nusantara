@@ -1,0 +1,8 @@
+/* Kolom kata sandi dengan tombol mata (tema terang & gelap lewat variabel warna) */
+.ps{position:relative}
+.ps input{padding-right:46px}
+.ps .ps-mata{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:34px;height:34px;padding:0;background:transparent;color:var(--muted);border:0;border-radius:9px;display:grid;place-items:center;cursor:pointer}
+.ps .ps-mata:hover{background:var(--soft);color:var(--ink)}
+.ps .ps-mata:focus-visible{outline:2px solid var(--brand);outline-offset:1px}
+.ps .ps-mata[aria-pressed=true]{color:var(--brand)}
+.ps .ps-mata svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}

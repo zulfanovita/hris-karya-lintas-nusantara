@@ -1,0 +1,38 @@
+/* Pemilih tanggal / rentang tanggal bertema (terang & gelap lewat variabel warna) */
+.pt{position:relative}
+.pt-btn{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;border:1px solid var(--line);border-radius:11px;background:var(--card);color:var(--ink);font:inherit;font-weight:600;cursor:pointer;text-align:left}
+.pt-btn:hover{background:var(--soft)}.pt-btn[aria-expanded=true]{border-color:var(--brand);outline:2px solid var(--brand);outline-offset:-1px}
+.pt-btn .ph{color:var(--muted);font-weight:500}.pt-btn .ik{color:var(--muted);width:17px;height:17px}
+.pt-req{position:absolute;inset:0;opacity:0;pointer-events:none;width:100%}
+.pt-pop{position:absolute;z-index:50;top:calc(100% + 6px);left:0;display:flex;background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);max-width:calc(100vw - 24px);overflow:hidden}
+.pt-pop.kanan{left:auto;right:0}
+.pt-pre{list-style:none;margin:0;padding:14px 10px;border-right:1px solid var(--line);background:var(--soft);min-width:150px;display:flex;flex-direction:column;gap:2px}
+.pt-pre .kl{padding:0 10px;margin-bottom:6px}
+.pt-pb{width:100%;text-align:left;background:transparent;color:var(--ink);border:0;border-radius:9px;padding:7px 10px;font-weight:600;font-size:13px}
+.pt-pb:hover{background:var(--brand-l);color:var(--brand)}.pt-pb.on{background:var(--btn);color:#fff}
+.pt-main{padding:16px}
+.pt-bulans{display:flex;gap:26px}
+.pt-bh{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:10px;min-height:32px}
+.pt-lbl{background:transparent;color:var(--ink);border:0;padding:5px 9px;border-radius:9px;font-weight:800;font-size:14.5px;display:flex;align-items:center;gap:7px}
+.pt-lbl:hover{background:var(--soft)}
+.pt-car{width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid var(--muted)}
+.pt-nav{width:30px;height:30px;padding:0;border-radius:9px;border:1px solid var(--line);background:var(--card);color:var(--muted);display:grid;place-items:center;flex-shrink:0}
+.pt-nav:hover{background:var(--brand-l);color:var(--brand);border-color:var(--brand-l)}.pt-nav.ph{visibility:hidden}
+.pt-grid{display:grid;grid-template-columns:repeat(7,34px);row-gap:3px}
+.pt-grid .hd{height:30px;display:grid;place-items:center;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase}
+.pt-d{height:34px;padding:0;border:0;border-radius:0;background:transparent;color:var(--ink);font-weight:600;font-size:13px}
+.pt-d:hover:not(.off):not(.s):not(.e){background:var(--soft);border-radius:10px}
+.pt-d.we{color:var(--muted)}.pt-d.lb{color:var(--red)}
+.pt-d.x{box-shadow:inset 0 0 0 1.5px var(--brand);border-radius:10px}
+.pt-d.in{background:var(--brand-l);color:var(--brand)}
+.pt-d.s,.pt-d.e{background:var(--btn);color:#fff;box-shadow:none}
+.pt-d.s{border-radius:10px 0 0 10px}.pt-d.e{border-radius:0 10px 10px 0}.pt-d.s.e{border-radius:10px}
+.pt-d.off{opacity:.3;cursor:not-allowed}
+.pt-thn{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;font-weight:800;font-size:15px}
+.pt-bl{display:grid;grid-template-columns:repeat(3,92px);gap:6px}
+.pt-m{padding:11px 0;border-radius:11px;border:1px solid transparent;background:transparent;color:var(--ink);font-weight:600;font-size:13.5px}
+.pt-m:hover{background:var(--soft)}.pt-m.now{border-color:var(--brand);color:var(--brand)}.pt-m.sel,.pt-m.sel:hover{background:var(--btn);color:#fff;border-color:var(--btn)}
+.pt-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.pt-foot .info{color:var(--muted);font-size:12.5px;font-weight:600}.pt-foot .aksi{display:flex;gap:8px;margin-left:auto}
+.pt-foot button.txt{background:transparent;color:var(--muted);padding:8px 12px}.pt-foot button.txt:hover{background:var(--soft);color:var(--ink)}
+@media(max-width:720px){.pt-pop{flex-direction:column}.pt-pre{flex-direction:row;overflow-x:auto;border-right:0;border-bottom:1px solid var(--line);padding:10px}.pt-pre .kl{display:none}.pt-pb{white-space:nowrap;width:auto}}
