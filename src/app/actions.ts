@@ -85,14 +85,22 @@ export async function batalkan(fd: FormData) {
   balik(back, { ok: 'Pengajuan dibatalkan. Kuota cuti tahunan dikembalikan.' });
 }
 
-export async function putuskan(fd: FormData) {
+async function prosesPutusan(fd: FormData, setuju: boolean) {
   const { sb } = await getSesi();
-  const id = s(fd, 'id'), setuju = s(fd, 'keputusan') === 'setuju';
+  const id = s(fd, 'id');
   const { data, error } = await sb.rpc('putuskan_pengajuan', { p_id: id, p_setuju: setuju, p_alasan: s(fd, 'alasan') || null });
   if (error) balik('/persetujuan/' + id, { err: ramah(error.message) });
   if (data === 'disetujui_atasan') await notifMenungguHrd(id);
   else await notifStatusKePemohon(id);
   balik('/persetujuan', { ok: setuju ? 'Pengajuan disetujui.' : 'Pengajuan ditolak. Kuota cuti tahunan dikembalikan.' });
+}
+
+export async function putuskanSetuju(fd: FormData) {
+  await prosesPutusan(fd, true);
+}
+
+export async function putuskanTolak(fd: FormData) {
+  await prosesPutusan(fd, false);
 }
 
 // ------------------------------------------------------------ KARYAWAN

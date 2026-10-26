@@ -25,7 +25,7 @@ Aplikasi HRIS internal (Next.js 15 App Router + Supabase) — absensi dengan jam
 
 ### 1. Supabase
 1. Buat project di supabase.com.
-2. SQL Editor → jalankan **`supabase/migrations/001_skema.sql`**, lalu **`002_storage.sql`**.
+2. SQL Editor → jalankan **`supabase/migrations/001_skema.sql`**, **`002_storage.sql`**, lalu **`003_atasan_baca_karyawan_nonaktif.sql`**. Untuk project yang sudah menjalankan migrasi 001 dan 002, jalankan migrasi 003 saja agar Atasan dapat melihat akun nonaktif di divisinya.
 3. Authentication → Providers → Email: nonaktifkan *Allow new users to sign up* (PRD: tanpa pendaftaran mandiri).
 4. Salin URL, anon key, dan service_role key (Project Settings → API).
 

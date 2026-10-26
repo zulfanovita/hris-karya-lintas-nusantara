@@ -1,6 +1,7 @@
 import { getSesi } from '@/lib/sesi';
 import { batalkan } from '../../actions';
-import { Badge, Flash, type SP } from '@/components/ui';
+import { Badge, type SP } from '@/components/ui';
+import FlashOtomatis from '@/components/FlashOtomatis';
 import { hariIniWIB, LABEL_JENIS, tgl, rentang } from '@/lib/format';
 import FormCuti from './FormCuti';
 
@@ -19,7 +20,7 @@ export default async function Cuti({ searchParams }: { searchParams: SP }) {
   return (
     <>
       <div className="top"><div><h1>Cuti dan Izin</h1><p className="sub">Ajukan cuti tahunan, sakit, atau izin dan pantau statusnya</p></div></div>
-      <Flash ok={sp.ok} err={sp.err} />
+      <FlashOtomatis ok={sp.ok} err={sp.err} />
       <div className="grid g2" style={{ alignItems: 'start' }}>
         <FormCuti uid={profil.id} libur={(libur ?? []).map((l) => l.tanggal)} kuota={mK} tanggalMasuk={profil.tanggal_masuk} hariIni={hari} />
         <div className="card scroll"><h2>Pengajuan saya</h2>

@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getSesi } from '@/lib/sesi';
-import { batalkan, putuskan } from '../../../actions';
+import { batalkan, putuskanSetuju, putuskanTolak } from '../../../actions';
 import { Badge, Flash, type SP } from '@/components/ui';
 import { hariIniWIB, jam, LABEL_JENIS, rentang, tambahHari, tgl, tglJam, tglPanjang } from '@/lib/format';
 
@@ -70,9 +70,9 @@ export default async function Detail({ params, searchParams }: { params: Promise
           </div>
           {sendiri && !bisaBatalSendiri && <p className="muted" style={{ margin: '18px 0 0' }}>Ini pengajuan Anda sendiri. Tidak ada yang boleh memutuskan pengajuannya sendiri.</p>}
           {bisaPutus && (<><hr style={{ border: 0, borderTop: '1px solid var(--line)', margin: '18px 0' }} /><h2>Keputusan Anda</h2>
-            <form action={putuskan}><input type="hidden" name="id" value={r.id} />
+            <form action={putuskanSetuju}><input type="hidden" name="id" value={r.id} />
               <div className="f"><textarea name="alasan" placeholder="Alasan penolakan (wajib minimal 10 karakter bila menolak)" /></div>
-              <div className="acts"><button name="keputusan" value="setuju" formNoValidate>Setujui</button><button name="keputusan" value="tolak" className="sec" formNoValidate>Tolak</button>
+              <div className="acts"><button formNoValidate>Setujui</button><button formAction={putuskanTolak} className="sec" formNoValidate>Tolak</button>
                 <span className="note">{profil.peran === 'atasan' ? 'Setelah Anda setujui, pengajuan diteruskan ke HRD.' : 'Keputusan HRD bersifat akhir.'}</span></div></form></>)}
           {(bisaBatalHrd || bisaBatalSendiri) && (<><hr style={{ border: 0, borderTop: '1px solid var(--line)', margin: '18px 0' }} /><h2>Pembatalan</h2>
             <p className="muted" style={{ marginTop: 0 }}>{bisaBatalHrd ? 'Pengajuan sudah disetujui; HRD dapat membatalkannya sebelum tanggal mulai.' : 'Anda dapat membatalkan selama belum disetujui HRD.'} Kuota cuti tahunan dikembalikan.</p>

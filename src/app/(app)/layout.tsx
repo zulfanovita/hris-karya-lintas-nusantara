@@ -4,6 +4,8 @@ import { inisial, LABEL_PERAN } from '@/lib/format';
 import Ikon from '@/components/Ikon';
 import TemaToggle from '@/components/TemaToggle';
 import Nav from './Nav';
+import TombolProses from '@/components/TombolProses';
+import PageContent from './PageContent';
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const { sb, profil } = await getSesi();
@@ -30,7 +32,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <aside className="side">
         <div className="logo"><i>K</i><div>Karsa<b>HR</b><small>PT Karsa Lintas Nusantara</small></div></div>
         <Nav menu={menu} />
-        <form action={keluar} className="out"><button><Ikon n="keluar" /><span>Keluar</span></button></form>
+        <form action={keluar} className="out"><TombolProses pendingText="Sedang keluar..."><Ikon n="keluar" /><span>Keluar</span></TombolProses></form>
       </aside>
       <div className="content">
         <header className="topbar">
@@ -41,7 +43,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           <TemaToggle />
           <div className="chip"><div>{profil.nama_lengkap}<small>{LABEL_PERAN[p]} · {profil.jabatan}</small></div><span className="av">{inisial(profil.nama_lengkap)}</span></div>
         </header>
-        <main className="main">{children}</main>
+        <PageContent>{children}</PageContent>
       </div>
     </div>
   );

@@ -62,7 +62,7 @@ export default async function Laporan({ searchParams }: { searchParams: SP }) {
         <StatK l="Karyawan aktif" n={aktif} /></div>
 
       <div className="card"><h2>Kehadiran per minggu (orang-hari)</h2>
-        {mgg?.length ? <GrafikMingguan data={mgg.map((m: any) => ({ ...m, label: tglPendek(m.minggu) }))} /> : <p className="muted">Tidak ada data pada rentang ini.</p>}</div>
+        {mgg?.length ? <GrafikMingguan dashboard data={mgg.map((m: any) => ({ ...m, label: tglPendek(m.minggu) }))} /> : <p className="muted">Tidak ada data pada rentang ini.</p>}</div>
 
       <div className="grid g2" style={{ alignItems: 'start' }}>
         <div className="card"><div className="top" style={{ marginBottom: 4 }}><h2 style={{ margin: 0 }}>Hari cuti, sakit, izin disetujui per divisi</h2><a className="btn sec sm" href={`/api/ekspor?jenis=cuti&${qs}`}>Ekspor CSV</a></div>

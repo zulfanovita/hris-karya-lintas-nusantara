@@ -86,7 +86,7 @@ export default async function Dashboard({ searchParams }: { searchParams: SP }) 
         <Link key={a.id} href={`/persetujuan/${a.id}`} className="li" style={{ color: 'inherit', textDecoration: 'none' }}><span className="av sm">{inisial(N.get(a.karyawan_id) ?? '?')}</span>
           <div className="t">{N.get(a.karyawan_id)}<small>{LABEL_JENIS[a.jenis]} · {a.jumlah_hari} hari</small></div><Badge s={a.status} teks={a.status === 'disetujui_atasan' ? 'Atasan ✓' : 'Baru'} /></Link>))}
         {!antre?.length && <p className="muted" style={{ margin: 0 }}>Tidak ada antrean. 🎉</p>}</div></div>;
-    tengah = <div className="card"><h2>Kehadiran 4 minggu terakhir (hari-orang)</h2><GrafikMingguan data={(mgg ?? []).map((x: any) => ({ ...x, label: tglPendek(x.minggu) }))} />
+    tengah = <div className="card"><h2>Kehadiran 4 minggu terakhir (hari-orang)</h2><GrafikMingguan dashboard data={(mgg ?? []).map((x: any) => ({ ...x, label: tglPendek(x.minggu) }))} />
       <p className="muted" style={{ marginBottom: 0 }}>Detail dan filter per divisi ada di <Link href="/laporan">Laporan</Link>.</p></div>;
   } else {
     rail = <div className="card"><h2>Hari libur mendatang</h2><div className="rows">{(liburNext ?? []).map((l) => (
@@ -99,6 +99,7 @@ export default async function Dashboard({ searchParams }: { searchParams: SP }) 
       <Flash ok={sp.ok} err={sp.err} />
       <div className="greet"><div><h1>{sapa}, <b>{profil.nama_lengkap.split(' ')[0]}</b></h1><p>{tglPanjang(hari)} · Jam server {jamSekarangWIB()} WIB</p></div></div>
       <div className="dash"><div>
+        {profil.peran === 'hrd' && stats}
         {/* 3 kartu utama sesuai wireframe */}
         <div className="grid g3" style={{ marginBottom: 18 }}>
           <div className="card" style={flat}><div className="kl">Absensi hari ini</div>
@@ -113,7 +114,7 @@ export default async function Dashboard({ searchParams }: { searchParams: SP }) 
           <div className="card" style={flat}><div className="kl">Kehadiran {namaBulan(Number(hari.slice(5, 7)) - 1)}</div><div className="big2">{tepat} <small>tepat waktu</small></div>
             <p className="muted" style={{ margin: '8px 0 0' }}>{telatSaya} kali terlambat · batas jam masuk 08.15</p></div>
         </div>
-        {stats}{tengah}
+        {profil.peran !== 'hrd' && stats}{tengah}
         <div className="card scroll"><div className="top" style={{ marginBottom: 10 }}><h2 style={{ margin: 0 }}>Pengajuan saya</h2><Link href="/cuti" className="btn sm">+ Ajukan cuti atau izin</Link></div>
           {!pengs?.length ? <p className="muted" style={{ margin: 0 }}>Belum ada pengajuan.</p> : (
             <table><thead><tr><th>Jenis</th><th>Tanggal</th><th>Lama</th><th>Status</th><th></th></tr></thead><tbody>
@@ -121,11 +122,15 @@ export default async function Dashboard({ searchParams }: { searchParams: SP }) 
                 <td>{['diajukan', 'disetujui_atasan'].includes(p.status) && <form action={batalkan}><input type="hidden" name="id" value={p.id} /><input type="hidden" name="kembali" value="/dashboard" /><button className="sec sm">Batalkan</button></form>}</td></tr>)}
             </tbody></table>)}</div>
         <div className="grid g12">
-          <div className="card" style={flat}><div className="kl">Slip gaji terakhir</div>
-            {sl ? (<><div className="fl">Periode</div><div style={{ fontWeight: 600, marginBottom: 10 }}>{namaBulan(Number(sl.periode.slice(5, 7)) - 1)} {sl.periode.slice(0, 4)} · {sl.nomor_slip}</div>
-              <div className="fl">Total diterima</div><div className="big2" style={{ fontSize: 26, marginBottom: 12 }}>{rupiah(sl.total_diterima)}</div>
-              <Link href={`/slip/${sl.id}`} className="btn sm">Lihat dan unduh slip</Link></>) : <p className="muted" style={{ margin: 0 }}>Belum ada slip yang terbit.</p>}
-            <p className="muted" style={{ fontSize: 12.5, margin: '12px 0 0' }}>Slip hanya bisa dilihat oleh Anda dan HRD.</p></div>
+          <div className="card payroll-card" style={flat}><div className="kl">Slip gaji terakhir</div>
+                <div className="payroll-body">
+                  {sl ? (<>
+                    <div className="payroll-item"><div className="fl">Periode</div><div className="payroll-period">{namaBulan(Number(sl.periode.slice(5, 7)) - 1)} {sl.periode.slice(0, 4)} · {sl.nomor_slip}</div></div>
+                    <div className="payroll-item"><div className="fl">Total diterima</div><div className="big2 payroll-amount">{rupiah(sl.total_diterima)}</div></div>
+                    <Link href={`/slip/${sl.id}`} className="btn sm">Lihat dan unduh slip</Link>
+                  </>) : <p className="muted" style={{ margin: 0 }}>Belum ada slip yang terbit.</p>}
+                  <p className="muted payroll-note">Slip hanya bisa dilihat oleh Anda dan HRD.</p>
+                </div></div>
           <div className="card scroll" style={flat}><div className="kl">Absensi 5 hari terakhir</div>
             <table><thead><tr><th>Tanggal</th><th>Masuk</th><th>Pulang</th><th>Status</th></tr></thead><tbody>
               {(abs5 ?? []).map((a) => <tr key={a.id}><td>{tglPanjang(a.tanggal)}</td><td className="mono" title={jamDetik(a.jam_masuk)}>{jam(a.jam_masuk)}</td><td className="mono">{a.jam_pulang ? jam(a.jam_pulang) : '-'}</td><td><Badge s={a.status} /></td></tr>)}

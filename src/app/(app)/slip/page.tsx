@@ -18,8 +18,8 @@ export default async function Slip({ searchParams }: { searchParams: SP }) {
       <>
         <div className="top"><div><h1>Slip Gaji</h1><p className="sub">Hanya Anda dan HRD yang dapat melihat slip gaji Anda</p></div></div>
         <Flash ok={sp.ok} err={sp.err} />
-        <div className="card scroll"><table><thead><tr><th>Periode</th><th>Nomor slip</th><th className="right">Total diterima</th><th></th></tr></thead><tbody>
-          {(data ?? []).map((s) => <tr key={s.id}><td>{labelPeriode(s.periode)}</td><td className="mono">{s.nomor_slip}</td><td className="right mono">{rupiah(s.total_diterima)}</td><td><Link className="btn sm" href={`/slip/${s.id}`}>Lihat / cetak</Link></td></tr>)}
+        <div className="card scroll"><table><thead><tr><th>Periode</th><th>Nomor slip</th><th className="right">Total diterima</th><th className="right"></th></tr></thead><tbody>
+          {(data ?? []).map((s) => <tr key={s.id}><td>{labelPeriode(s.periode)}</td><td className="mono">{s.nomor_slip}</td><td className="right mono">{rupiah(s.total_diterima)}</td><td className="right"><Link className="btn sm" href={`/slip/${s.id}`}>Lihat / cetak</Link></td></tr>)}
           {!data?.length && <tr><td colSpan={4} className="muted">Belum ada slip yang terbit.</td></tr>}</tbody></table></div>
       </>
     );

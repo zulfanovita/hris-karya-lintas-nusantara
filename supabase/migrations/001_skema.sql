@@ -141,6 +141,15 @@ as $$
     where p.id = p_karyawan and d.manajer_id = auth.uid())
 $$;
 
+create function public.atasan_satu_divisi(p_karyawan uuid) returns boolean language sql stable security definer set search_path = public
+as $$
+  select exists (
+    select 1 from public.profiles atasan join public.profiles anggota on anggota.divisi_id = atasan.divisi_id
+    where atasan.id = auth.uid() and atasan.aktif and atasan.peran = 'atasan' and anggota.id = p_karyawan)
+$$;
+revoke all on function public.atasan_satu_divisi(uuid) from public, anon;
+grant execute on function public.atasan_satu_divisi(uuid) to authenticated;
+
 create function public.hitung_hari_kerja(p_mulai date, p_selesai date) returns int
 language sql stable security definer set search_path = public
 as $$
@@ -570,7 +579,7 @@ alter table public.slip_gaji enable row level security;
 alter table public.audit_log enable row level security;
 
 create policy profiles_baca on public.profiles for select to authenticated
-  using (id = auth.uid() or (public.profil_aktif() and (public.adalah_hrd() or public.atasan_dari(id))));
+  using (id = auth.uid() or (public.profil_aktif() and (public.adalah_hrd() or public.atasan_satu_divisi(id) or public.atasan_dari(id))));
 create policy profiles_tambah on public.profiles for insert to authenticated with check (public.adalah_hrd());
 create policy profiles_ubah on public.profiles for update to authenticated using (public.adalah_hrd()) with check (public.adalah_hrd());
 
