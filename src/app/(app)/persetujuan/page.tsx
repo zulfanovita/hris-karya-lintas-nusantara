@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { getSesi, wajibPeran } from '@/lib/sesi';
 import { Badge, Flash, type SP } from '@/components/ui';
 import { LABEL_JENIS, tgl, rentang } from '@/lib/format';
+import Halaman from '@/components/Halaman';
+import { ambilHalaman, bacaHalaman, potong } from '@/lib/halaman';
 
 export default async function Persetujuan({ searchParams }: { searchParams: SP }) {
   const sp = await searchParams;
@@ -19,8 +21,8 @@ export default async function Persetujuan({ searchParams }: { searchParams: SP }
   const [{ data }, { data: peg }] = await Promise.all([q, sb.from('profiles').select('id,nama_lengkap,jabatan')]);
   const nama = new Map((peg ?? []).map((p) => [p.id, p]));
   const cari = (sp.q ?? '').toLowerCase();
-  const baris = (data ?? []).filter((r) => !cari || (nama.get(r.karyawan_id)?.nama_lengkap ?? '').toLowerCase().includes(cari));
-
+  const barisSaring = (data ?? []).filter((r) => !cari || (nama.get(r.karyawan_id)?.nama_lengkap ?? '').toLowerCase().includes(cari));
+  const { data: baris, total, hal } = potong(barisSaring, bacaHalaman(sp));
   return (
     <>
       <div className="top"><div><h1>Persetujuan</h1><p className="sub">{profil.peran === 'atasan' ? 'Tahap pertama: pengajuan anggota divisi Anda' : 'Keputusan akhir pengajuan'}</p></div></div>
@@ -38,7 +40,8 @@ export default async function Persetujuan({ searchParams }: { searchParams: SP }
           <td>{LABEL_JENIS[r.jenis]}</td><td>{rentang(r.tanggal_mulai, r.tanggal_selesai)}</td><td>{r.jumlah_hari}</td>
           <td><Badge s={r.status} /></td><td className="muted">{tgl(r.dibuat_pada)}</td><td><Link className="btn sm" href={`/persetujuan/${r.id}`}>Detail</Link></td></tr>)}
         {!baris.length && <tr><td colSpan={7} className="muted">{semua ? 'Tidak ada data.' : 'Tidak ada pengajuan yang menunggu Anda. 🎉'}</td></tr>}
-      </tbody></table></div>
+        </tbody></table>
+        <Halaman hal={hal} total={total} path="/persetujuan" sp={sp} /></div>
     </>
   );
 }

@@ -4,6 +4,8 @@ import { hapusDraf, salinSlip, simpanSlip, terbitkan } from '../../actions';
 import { Badge, Flash, type SP } from '@/components/ui';
 import PilihBulan from '@/components/PilihBulan';
 import { hariIniWIB, namaBulan, rupiah } from '@/lib/format';
+import Halaman from '@/components/Halaman';
+import { ambilHalaman, bacaHalaman, potong } from '@/lib/halaman';
 
 const labelPeriode = (p: string) => `${namaBulan(Number(p.slice(5, 7)) - 1)} ${p.slice(0, 4)}`;
 
@@ -13,14 +15,16 @@ export default async function Slip({ searchParams }: { searchParams: SP }) {
 
   // ---- Karyawan / Atasan: hanya slip sendiri yang sudah terbit (dijaga RLS)
   if (profil.peran !== 'hrd') {
-    const { data } = await sb.from('slip_gaji').select('id,nomor_slip,periode,total_diterima').eq('karyawan_id', profil.id).eq('status', 'terbit').order('periode', { ascending: false });
+    const hal = bacaHalaman(sp);
+    const { data, total } = await ambilHalaman(sb.from('slip_gaji').select('id,nomor_slip,periode,total_diterima', { count: 'exact' }).eq('karyawan_id', profil.id).eq('status', 'terbit').order('periode', { ascending: false }), hal);
     return (
       <>
         <div className="top"><div><h1>Slip Gaji</h1><p className="sub">Hanya Anda dan HRD yang dapat melihat slip gaji Anda</p></div></div>
         <Flash ok={sp.ok} err={sp.err} />
         <div className="card scroll"><table><thead><tr><th>Periode</th><th>Nomor slip</th><th className="right">Total diterima</th><th className="right"></th></tr></thead><tbody>
           {(data ?? []).map((s) => <tr key={s.id}><td>{labelPeriode(s.periode)}</td><td className="mono">{s.nomor_slip}</td><td className="right mono">{rupiah(s.total_diterima)}</td><td className="right"><Link className="btn sm" href={`/slip/${s.id}`}>Lihat / cetak</Link></td></tr>)}
-          {!data?.length && <tr><td colSpan={4} className="muted">Belum ada slip yang terbit.</td></tr>}</tbody></table></div>
+          {!data?.length && <tr><td colSpan={4} className="muted">Belum ada slip yang terbit.</td></tr>}</tbody></table>
+          <Halaman hal={hal} total={total} path="/slip" sp={sp} /></div>
       </>
     );
   }
@@ -35,6 +39,7 @@ export default async function Slip({ searchParams }: { searchParams: SP }) {
   const sudah = new Set((slips ?? []).map((s) => s.karyawan_id));
   const belum = (peg ?? []).filter((p) => p.aktif && !sudah.has(p.id));
   const draf = (slips ?? []).filter((s) => s.status === 'draf');
+  const { data: halSlip, total: totalSlip, hal: halS } = potong(slips ?? [], bacaHalaman(sp));
   const f = (s: any) => (
     <form action={simpanSlip}><input type="hidden" name="id" value={s?.id ?? ''} /><input type="hidden" name="periode" value={periode} />
       <div className="row f">
@@ -57,14 +62,15 @@ export default async function Slip({ searchParams }: { searchParams: SP }) {
             <form action={salinSlip}><input type="hidden" name="periode" value={periode} /><button className="sec sm">Salin dari periode sebelumnya</button></form>
             {draf.length > 0 && <form action={terbitkan}><input type="hidden" name="periode" value={periode} /><button className="sm">Terbitkan semua draf ({draf.length})</button></form>}</div></div>
         <table><thead><tr><th>Nomor</th><th>Karyawan</th><th className="right">Gaji pokok</th><th className="right">Tunjangan</th><th className="right">Potongan</th><th className="right">Diterima</th><th>Status</th><th></th></tr></thead><tbody>
-          {(slips ?? []).map((s) => <tr key={s.id}><td className="mono">{s.nomor_slip ?? <span className="muted">—</span>}</td><td>{nama.get(s.karyawan_id)?.nama_lengkap}</td>
+          {halSlip.map((s) => <tr key={s.id}><td className="mono">{s.nomor_slip ?? <span className="muted">—</span>}</td><td>{nama.get(s.karyawan_id)?.nama_lengkap}</td>
             <td className="right mono">{rupiah(s.gaji_pokok)}</td><td className="right mono">{rupiah(s.tunjangan)}</td><td className="right mono">{rupiah(s.potongan)}</td><td className="right mono"><b>{rupiah(s.total_diterima)}</b></td><td><Badge s={s.status} /></td>
             <td style={{ minWidth: 150 }}>{s.status === 'terbit' ? <Link className="btn sm sec" href={`/slip/${s.id}`}>Lihat</Link> : (
               <div className="row" style={{ gap: 6 }}>
                 <form action={terbitkan}><input type="hidden" name="id" value={s.id} /><input type="hidden" name="periode" value={periode} /><button className="sm">Terbitkan</button></form>
                 <details><summary>Ubah</summary>{f(s)}<form action={hapusDraf}><input type="hidden" name="id" value={s.id} /><input type="hidden" name="periode" value={periode} /><button className="bad sm" style={{ marginTop: 8 }}>Hapus draf</button></form></details></div>)}</td></tr>)}
           {!slips?.length && <tr><td colSpan={8} className="muted">Belum ada slip pada periode ini.</td></tr>}
-        </tbody></table></div>
+        </tbody></table>
+        <Halaman hal={halS} total={totalSlip} path="/slip" sp={sp} /></div>
       {belum.length > 0 && <div className="card" style={{ maxWidth: 640 }}><h2>Slip baru ({belum.length} karyawan aktif belum punya slip)</h2>{f(null)}</div>}
     </>
   );

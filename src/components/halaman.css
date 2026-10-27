@@ -1,0 +1,8 @@
+/* Navigasi halaman daftar (tema terang & gelap lewat variabel warna) */
+.pg{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+.pg .info{color:var(--muted);font-size:13px;font-weight:600}
+.pg .nav{display:flex;gap:6px;align-items:center}
+.pg-b{min-width:34px;height:34px;padding:0 10px;display:grid;place-items:center;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-weight:600;font-size:13px}
+a.pg-b:hover{background:var(--brand-l);color:var(--brand);border-color:var(--brand-l);text-decoration:none}
+.pg-b.on{background:var(--btn);color:#fff;border-color:var(--btn)}
+.pg-b.off{opacity:.4}.pg-e{color:var(--muted);padding:0 2px}

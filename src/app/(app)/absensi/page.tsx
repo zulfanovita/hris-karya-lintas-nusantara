@@ -6,6 +6,8 @@ import { Badge, Flash, StatK, type SP } from '@/components/ui';
 import PilihBulan from '@/components/PilihBulan';
 import { ambilHarian, KELAS_HARIAN, LABEL_HARIAN, saring } from '@/lib/harian';
 import { awalBulan, hariIniWIB, jam, jamDetik, jamInput, tglPanjang } from '@/lib/format';
+import Halaman from '@/components/Halaman';
+import { ambilHalaman, bacaHalaman, potong } from '@/lib/halaman';
 
 function FormKoreksi({ k, tanggal, jm, jp, kembali }: { k: string; tanggal: string; jm?: string; jp?: string; kembali: string }) {
   return (
@@ -36,6 +38,7 @@ export default async function Absensi({ searchParams }: { searchParams: SP }) {
     const akhir = new Date(Date.UTC(y, m, 0)).toISOString().slice(0, 10);
     const { data } = await sb.from('absensi').select('*').eq('karyawan_id', profil.id).gte('tanggal', bulan + '-01').lte('tanggal', akhir).order('tanggal', { ascending: false });
     const saya = data ?? [], n = (s: string) => saya.filter((x) => x.status === s).length;
+    const { data: sayaHal, total: totalSaya, hal: halSaya } = potong(saya, bacaHalaman(sp));
     return (
       <>
         <div className="top"><div><h1>Absensi</h1><p className="sub">Riwayat check-in dan check-out · data dari server, zona WIB</p></div></div>
@@ -43,10 +46,11 @@ export default async function Absensi({ searchParams }: { searchParams: SP }) {
         <form className="card row" method="get"><input type="hidden" name="tab" value="saya" /><div><label>Bulan</label><PilihBulan name="bulan" defaultValue={bulan} /></div><div className="auto"><button>Tampilkan</button></div></form>
         <div className="grid g3" style={{ marginBottom: 16 }}><StatK l="Hadir tepat waktu" n={n('hadir')} warna="var(--green)" /><StatK l="Terlambat" n={n('terlambat')} warna="var(--amber)" /><StatK l="Total hari tercatat" n={saya.length} /></div>
         <div className="card scroll"><table><thead><tr><th>Tanggal</th><th>Masuk</th><th>Pulang</th><th>Status</th><th>Catatan</th></tr></thead><tbody>
-          {saya.map((r) => <tr key={r.id}><td>{tglPanjang(r.tanggal)}</td><td className="mono" title={jamDetik(r.jam_masuk)}>{jam(r.jam_masuk)}</td>
+          {sayaHal.map((r) => <tr key={r.id}><td>{tglPanjang(r.tanggal)}</td><td className="mono" title={jamDetik(r.jam_masuk)}>{jam(r.jam_masuk)}</td>
             <td className="mono">{r.jam_pulang ? jam(r.jam_pulang) : <span className="muted">belum check-out</span>}</td><td><Badge s={r.status} /></td>
             <td className="muted">{r.dikoreksi_oleh ? 'Dikoreksi HRD: ' + r.alasan_koreksi : ''}</td></tr>)}
-          {!saya.length && <tr><td colSpan={5} className="muted">Tidak ada data pada bulan ini.</td></tr>}</tbody></table></div>
+          {!saya.length && <tr><td colSpan={5} className="muted">Tidak ada data pada bulan ini.</td></tr>}</tbody></table>
+          <Halaman hal={halSaya} total={totalSaya} path="/absensi" sp={sp} /></div>
       </>
     );
   }
@@ -55,7 +59,8 @@ export default async function Absensi({ searchParams }: { searchParams: SP }) {
   const tanggal = sp.tanggal && /^\d{4}-\d{2}-\d{2}$/.test(sp.tanggal) && sp.tanggal <= hari ? sp.tanggal : hari;
   const [semua, { data: divisi }] = await Promise.all([ambilHarian(sb, tanggal), sb.from('divisi').select('id,nama').order('nama')]);
   const bagi = saring(semua, sp.divisi || undefined);        // kartu ringkasan mengikuti filter divisi
-  const baris = saring(semua, sp.divisi || undefined, sp.status || undefined);
+  const barisSaring = saring(semua, sp.divisi || undefined, sp.status || undefined);
+  const { data: baris, total: totalBaris, hal: halBaris } = potong(barisSaring, bacaHalaman(sp));
   const n = (...s: string[]) => bagi.filter((r) => s.includes(r.status)).length;
   const kembali = `/absensi?tanggal=${tanggal}${sp.divisi ? '&divisi=' + sp.divisi : ''}${sp.status ? '&status=' + sp.status : ''}`;
   const csv = `/api/ekspor?jenis=harian&tanggal=${tanggal}${sp.divisi ? '&divisi=' + sp.divisi : ''}${sp.status ? '&status=' + sp.status : ''}`;
@@ -79,7 +84,8 @@ export default async function Absensi({ searchParams }: { searchParams: SP }) {
           <td className="mono" title={jamDetik(r.masuk)}>{r.masuk ? jam(r.masuk) : '-'}</td><td className="mono">{r.pulang ? jam(r.pulang) : '-'}</td>
           <td><Badge s={KELAS_HARIAN[r.status]} teks={LABEL_HARIAN[r.status]} /></td><td className="muted">{r.catatan}</td>
           {hrd && <td><FormKoreksi k={r.karyawan_id} tanggal={tanggal} jm={jamInput(r.masuk)} jp={jamInput(r.pulang)} kembali={kembali} /></td>}</tr>)}
-        {!baris.length && <tr><td colSpan={8} className="muted">Tidak ada data.</td></tr>}</tbody></table></div>
+        {!baris.length && <tr><td colSpan={8} className="muted">Tidak ada data.</td></tr>}</tbody></table>
+        <Halaman hal={halBaris} total={totalBaris} path="/absensi" sp={sp} /></div>
     </>
   );
 }

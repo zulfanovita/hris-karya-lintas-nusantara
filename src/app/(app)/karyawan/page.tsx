@@ -2,18 +2,20 @@ import Link from 'next/link';
 import { getSesi, wajibPeran } from '@/lib/sesi';
 import { Badge, Flash, type SP } from '@/components/ui';
 import { LABEL_PERAN, tgl } from '@/lib/format';
+import Halaman from '@/components/Halaman';
+import { ambilHalaman, bacaHalaman, potong } from '@/lib/halaman';
 
 export default async function Karyawan({ searchParams }: { searchParams: SP }) {
   const sp = await searchParams;
   const { sb, profil } = await getSesi(); wajibPeran(profil, 'atasan', 'hrd');
   const hrd = profil.peran === 'hrd';
   // Catatan: tidak ada kolom gaji di sini (BR-11). RLS membatasi Atasan ke divisinya sendiri.
-  let q = sb.from('profiles').select('id,nik_karyawan,nama_lengkap,email,peran,divisi_id,jabatan,status_kerja,tanggal_masuk,aktif').order('nik_karyawan');
-  const cari = (sp.q ?? '').replace(/[,()%]/g, ' ').trim();
+  let q = sb.from('profiles').select('id,nik_karyawan,nama_lengkap,email,peran,divisi_id,jabatan,status_kerja,tanggal_masuk,aktif', { count: 'exact' }).order('nik_karyawan');  const cari = (sp.q ?? '').replace(/[,()%]/g, ' ').trim();
   if (cari) q = q.or(`nama_lengkap.ilike.%${cari}%,nik_karyawan.ilike.%${cari}%,email.ilike.%${cari}%,jabatan.ilike.%${cari}%`);
   if (sp.divisi) q = q.eq('divisi_id', sp.divisi);
   if (sp.aktif) q = q.eq('aktif', sp.aktif === '1');
-  const [{ data }, { data: divisi }] = await Promise.all([q, sb.from('divisi').select('id,nama').order('nama')]);
+  const hal = bacaHalaman(sp);
+  const [{ data, total }, { data: divisi }] = await Promise.all([ambilHalaman(q, hal), sb.from('divisi').select('id,nama').order('nama')]);
   const dv = new Map((divisi ?? []).map((d) => [d.id, d.nama]));
 
   return (
@@ -32,7 +34,8 @@ export default async function Karyawan({ searchParams }: { searchParams: SP }) {
           <td>{p.aktif ? <Badge s="hadir" teks={p.status_kerja} /> : <Badge s="ditolak" teks="Nonaktif" />}</td><td>{tgl(p.tanggal_masuk)}</td>
           <td><Link className="btn sm sec" href={`/karyawan/${p.id}`}>Detail</Link></td></tr>)}
         {!data?.length && <tr><td colSpan={8} className="muted">Tidak ada data.</td></tr>}
-      </tbody></table></div>
+      </tbody></table>
+       <Halaman hal={hal} total={total} path="/karyawan" sp={sp} /></div>
     </>
   );
 }
