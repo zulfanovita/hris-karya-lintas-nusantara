@@ -11,7 +11,7 @@ export default async function Baru({ searchParams }: { searchParams: SP }) {
   const { data: divisi } = await sb.from('divisi').select('id,nama').order('nama');
   return (
     <>
-      <div className="top"><div><Link href="/karyawan" className="muted">← Daftar karyawan</Link><h1>Tambah karyawan</h1><p className="sub">HRD membuat akun; tidak ada pendaftaran mandiri.</p></div></div>
+      <div className="top"><div className="employee-heading"><Link href="/karyawan" className="back-button" aria-label="Kembali ke daftar karyawan" title="Kembali ke daftar karyawan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m0 0 7-7m-7 7 7 7" /></svg></Link><div><h1>Tambah karyawan</h1><p className="sub">HRD membuat akun; tidak ada pendaftaran mandiri.</p></div></div></div>
       <Flash ok={sp.ok} err={sp.err} />
       <form action={buatKaryawan} className="card" style={{ maxWidth: 640 }}>
         <div className="row f"><div><label>Nama lengkap</label><input name="nama_lengkap" required minLength={3} /></div><div><label>NIK (kosong = otomatis)</label><input name="nik_karyawan" placeholder="KLN-0020" pattern="KLN-[0-9]{4}" /></div></div>

@@ -7,7 +7,7 @@ import './pilihbulan.css';
 const SINGKAT = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
 
 // Pengganti <input type="month">. Mengirim nilai "YYYY-MM" lewat input tersembunyi bernama `name`.
-export default function PilihBulan({ name, defaultValue }: { name: string; defaultValue: string }) {
+export default function PilihBulan({ id, name, defaultValue }: { id: string; name: string; defaultValue: string }) {
   const [val, setVal] = useState(defaultValue);
   const [buka, setBuka] = useState(false);
   const [tahun, setTahun] = useState(Number(defaultValue.slice(0, 4)));
@@ -28,7 +28,7 @@ export default function PilihBulan({ name, defaultValue }: { name: string; defau
   return (
     <div className="pb" ref={ref}>
       <input type="hidden" name={name} value={val} />
-      <button type="button" className="pb-btn" aria-haspopup="dialog" aria-expanded={buka} onClick={() => { setTahun(Number(val.slice(0, 4))); setBuka(!buka); }}>
+      <button id={id} type="button" className="pb-btn" aria-haspopup="dialog" aria-expanded={buka} onClick={() => { setTahun(Number(val.slice(0, 4))); setBuka(!buka); }}>
         <span>{label}</span><Ikon n="cuti" />
       </button>
       {buka && (

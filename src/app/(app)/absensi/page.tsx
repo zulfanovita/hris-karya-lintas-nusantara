@@ -8,6 +8,7 @@ import { ambilHarian, KELAS_HARIAN, LABEL_HARIAN, saring } from '@/lib/harian';
 import { awalBulan, hariIniWIB, jam, jamDetik, jamInput, tglPanjang } from '@/lib/format';
 import Halaman from '@/components/Halaman';
 import { ambilHalaman, bacaHalaman, potong } from '@/lib/halaman';
+import TombolProses from '@/components/TombolProses';
 
 function FormKoreksi({ k, tanggal, jm, jp, kembali }: { k: string; tanggal: string; jm?: string; jp?: string; kembali: string }) {
   return (
@@ -17,7 +18,7 @@ function FormKoreksi({ k, tanggal, jm, jp, kembali }: { k: string; tanggal: stri
         <div className="row f"><div><label>Jam masuk</label><input type="time" name="jam_masuk" defaultValue={jm} required /></div>
           <div><label>Jam pulang</label><input type="time" name="jam_pulang" defaultValue={jp} /></div></div>
         <div className="f"><label>Alasan koreksi (min. 10 karakter)</label><input name="alasan" required minLength={10} /></div>
-        <button className="sm">Simpan koreksi</button>
+        <TombolProses className="sm" pendingText="Menyimpan koreksi...">Simpan koreksi</TombolProses>
       </form>
     </details>
   );
@@ -43,7 +44,7 @@ export default async function Absensi({ searchParams }: { searchParams: SP }) {
       <>
         <div className="top"><div><h1>Absensi</h1><p className="sub">Riwayat check-in dan check-out · data dari server, zona WIB</p></div></div>
         <Flash ok={sp.ok} err={sp.err} />{tabs}
-        <form className="card row" method="get"><input type="hidden" name="tab" value="saya" /><div><label>Bulan</label><PilihBulan name="bulan" defaultValue={bulan} /></div><div className="auto"><button>Tampilkan</button></div></form>
+        <form className="card row" method="get"><input type="hidden" name="tab" value="saya" /><div><label htmlFor="bulan-absensi">Bulan</label><PilihBulan id="bulan-absensi" name="bulan" defaultValue={bulan} /></div><div className="auto"><button>Tampilkan</button></div></form>
         <div className="grid g3" style={{ marginBottom: 16 }}><StatK l="Hadir tepat waktu" n={n('hadir')} warna="var(--green)" /><StatK l="Terlambat" n={n('terlambat')} warna="var(--amber)" /><StatK l="Total hari tercatat" n={saya.length} /></div>
         <div className="card scroll"><table><thead><tr><th>Tanggal</th><th>Masuk</th><th>Pulang</th><th>Status</th><th>Catatan</th></tr></thead><tbody>
           {sayaHal.map((r) => <tr key={r.id}><td>{tglPanjang(r.tanggal)}</td><td className="mono" title={jamDetik(r.jam_masuk)}>{jam(r.jam_masuk)}</td>

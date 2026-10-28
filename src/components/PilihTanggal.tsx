@@ -48,6 +48,7 @@ export default function PilihTanggal(p: Props) {
   const ref = useRef<HTMLDivElement>(null), pop = useRef<HTMLDivElement>(null);
   const t = hariIni(), L = new Set(p.libur ?? []);
   const nBulan = rentang && (p.bulan ?? 1) === 2 && !sempit ? 2 : 1;
+  const bulanBerikutnya = geserBln(tampil, 1);
   const mati = (d: string) => !!((p.max && d > p.max) || (p.min && d < p.min));
 
   useEffect(() => {
@@ -125,7 +126,7 @@ export default function PilihTanggal(p: Props) {
                     onClick={() => { setTampil({ y: thn, m: i + 1 }); setLihat('hari'); }}>{s}</button>))}</div>
               </div>
             ) : (
-              <div className="pt-bulans"><Bulan ym={tampil} awal akhir={nBulan === 1} />{nBulan === 2 && <Bulan ym={geserBln(tampil, 1)} awal={false} akhir />}</div>
+              <div className="pt-bulans"><Bulan key={`${tampil.y}-${tampil.m}`} ym={tampil} awal akhir={nBulan === 1} />{nBulan === 2 && <Bulan key={`${bulanBerikutnya.y}-${bulanBerikutnya.m}`} ym={bulanBerikutnya} awal={false} akhir />}</div>
             )}
             {rentang ? (
               <div className="pt-foot"><span className="info">{a ? (b && b !== a ? `${tgl(a)} – ${tgl(b)}` : tgl(a)) : 'Pilih tanggal mulai'}</span>

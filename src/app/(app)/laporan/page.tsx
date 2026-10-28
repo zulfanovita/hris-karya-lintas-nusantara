@@ -52,7 +52,7 @@ export default async function Laporan({ searchParams }: { searchParams: SP }) {
       <form className="card row" method="get">
         <div style={{ minWidth: 270 }}><label>Rentang tanggal</label><PilihTanggal mode="rentang" preset bulan={2} nameDari="dari" nameSampai="sampai" defaultDari={dari} defaultSampai={sampai} /></div>
         <div><label>Divisi</label><select name="divisi" defaultValue={sp.divisi ?? ''}><option value="">Semua divisi</option>{(divisi ?? []).map((d) => <option key={d.id} value={d.id}>{d.nama}</option>)}</select></div>
-        <div><label>Periode gaji</label><PilihBulan name="periode" defaultValue={periode} /></div>
+        <div><label htmlFor="periode-gaji">Periode gaji</label><PilihBulan id="periode-gaji" name="periode" defaultValue={periode} /></div>
         <div className="auto"><button>Terapkan filter</button></div></form>
 
       <div className="grid g4" style={{ marginBottom: 16 }}>

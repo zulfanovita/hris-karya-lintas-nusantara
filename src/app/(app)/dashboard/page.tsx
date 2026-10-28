@@ -35,7 +35,10 @@ export default async function Dashboard({ searchParams }: { searchParams: SP }) 
     sb.from('absensi').select('*').eq('karyawan_id', profil.id).order('tanggal', { ascending: false }).limit(5),
   ]);
   const sisa = kuota ? kuota.jatah_hari - kuota.terpakai_hari : 12, jatah = kuota?.jatah_hari ?? 12;
-  const akhirPekan = dow === 0 || dow === 6, bisaMasuk = !abs && !akhirPekan && !liburHari;
+  const akhirPekan = dow === 0 || dow === 6;
+  const hariLibur = akhirPekan || !!liburHari;
+  const bisaMasuk = !abs && !hariLibur;
+  const bisaPulang = !!abs && !abs.jam_pulang && !hariLibur;
   const libur: Record<string, string> = {}; (liburBln ?? []).forEach((l) => (libur[l.tanggal] = l.keterangan));
   const cuti = new Set<string>();
   (cutiBln ?? []).forEach((c) => { for (let d = c.tanggal_mulai, i = 0; d <= c.tanggal_selesai && i < 60; d = tambahHari(d, 1), i++) cuti.add(d); });
@@ -103,12 +106,12 @@ export default async function Dashboard({ searchParams }: { searchParams: SP }) 
         {/* 3 kartu utama sesuai wireframe */}
         <div className="grid g3" style={{ marginBottom: 18 }}>
           <div className="card" style={flat}><div className="kl">Absensi hari ini</div>
-            {liburHari ? <p style={{ margin: 0 }}>Hari libur: <b>{liburHari.keterangan}</b></p> : akhirPekan ? <p style={{ margin: 0 }}>Akhir pekan</p>
+            {hariLibur ? <p style={{ margin: 0 }}><b>Hari ini libur</b>{liburHari && <>: <b>{liburHari.keterangan}</b></>}</p>
               : abs ? <p style={{ margin: 0 }}>Check-in <b className="mono" title={jamDetik(abs.jam_masuk)}>{jam(abs.jam_masuk)}</b> <Badge s={abs.status} />{abs.jam_pulang && <> · Check-out <b className="mono">{jam(abs.jam_pulang)}</b></>}</p>
               : <p style={{ margin: 0 }} className="muted">Belum check-in</p>}
-            <p className="muted" style={{ fontSize: 12.5, margin: '8px 0 12px' }}>Check-out bisa dilakukan sampai pukul 23.59 WIB</p>
-            <div className="acts"><form action={checkIn}><button disabled={!bisaMasuk}>Check-in</button></form>
-              <form action={checkOut}><button className="sec" disabled={!abs || !!abs.jam_pulang}>Check-out</button></form></div></div>
+            {!hariLibur && <p className="muted" style={{ fontSize: 12.5, margin: '8px 0 12px' }}>Check-out bisa dilakukan sampai pukul 23.59 WIB</p>}
+            <div className="acts" style={hariLibur ? { marginTop: 12 } : undefined}><form action={checkIn}><button disabled={!bisaMasuk}>Check-in</button></form>
+              <form action={checkOut}><button className="sec" disabled={!bisaPulang}>Check-out</button></form></div></div>
           <div className="card" style={flat}><div className="kl">Sisa cuti tahunan {tahun}</div><div className="big2">{sisa} <small>dari {jatah} hari</small></div>
             <p className="muted" style={{ margin: '8px 0 0' }}>{kuota?.terpakai_hari ?? 0} hari terpakai atau sedang diajukan</p></div>
           <div className="card" style={flat}><div className="kl">Kehadiran {namaBulan(Number(hari.slice(5, 7)) - 1)}</div><div className="big2">{tepat} <small>tepat waktu</small></div>
